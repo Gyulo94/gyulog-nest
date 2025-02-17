@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { User } from '@prisma/client';
 import { compare } from 'bcrypt';
 import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/auth.dto';
@@ -39,5 +40,25 @@ export class AuthService {
       return result;
     }
     throw new UnauthorizedException('로그인 정보가 올바르지 않습니다.');
+  }
+
+  async refreshToken(user: User) {
+    const payload = {
+      email: user.email,
+      sub: { name: user.name, profileImage: user.profileImage },
+    };
+
+    return {
+      serverTokens: {
+        access_token: await this.jwtService.signAsync(payload, {
+          expiresIn: '1h',
+          secret: process.env.JWT_SECRET_KEY,
+        }),
+        refresh_token: await this.jwtService.signAsync(payload, {
+          expiresIn: '7d',
+          secret: process.env.JWT_REFRESH_TOKEN_KEY,
+        }),
+      },
+    };
   }
 }
