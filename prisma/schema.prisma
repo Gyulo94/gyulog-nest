@@ -26,7 +26,7 @@ model User {
 
 model Category {
   id            String        @id @default(cuid())
-  name          String
+  name          String        @unique
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   subCategories SubCategory[]
@@ -34,7 +34,7 @@ model Category {
 
 model SubCategory {
   id         String   @id @default(cuid())
-  name       String
+  name       String   @unique
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId String
   createdAt  DateTime @default(now())
