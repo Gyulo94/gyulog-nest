@@ -1,9 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
 import { compare } from 'bcrypt';
 import { UserService } from 'src/user/user.service';
 import { LoginDto } from './dto/auth.dto';
+
+const EXPIRE_TIME = 1000 * 60 * 60;
 
 @Injectable()
 export class AuthService {
@@ -16,11 +17,13 @@ export class AuthService {
     const user = await this.validateUser(dto);
     const payload = {
       email: user.email,
-      sub: { name: user.name, profileImage: user.profileImage },
+      sub: {
+        name: user.name,
+      },
     };
     return {
       user,
-      serverTokens: {
+      backendTokens: {
         access_token: await this.jwtService.signAsync(payload, {
           expiresIn: '1h',
           secret: process.env.JWT_SECRET_KEY,
@@ -29,6 +32,7 @@ export class AuthService {
           expiresIn: '7d',
           secret: process.env.JWT_REFRESH_TOKEN_KEY,
         }),
+        expireIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
       },
     };
   }
@@ -42,23 +46,22 @@ export class AuthService {
     throw new UnauthorizedException('로그인 정보가 올바르지 않습니다.');
   }
 
-  async refreshToken(user: User) {
+  async refreshToken(user: any) {
     const payload = {
       email: user.email,
-      sub: { name: user.name, profileImage: user.profileImage },
+      sub: user.sub,
     };
 
     return {
-      serverTokens: {
-        access_token: await this.jwtService.signAsync(payload, {
-          expiresIn: '1h',
-          secret: process.env.JWT_SECRET_KEY,
-        }),
-        refresh_token: await this.jwtService.signAsync(payload, {
-          expiresIn: '7d',
-          secret: process.env.JWT_REFRESH_TOKEN_KEY,
-        }),
-      },
+      access_token: await this.jwtService.signAsync(payload, {
+        expiresIn: '1h',
+        secret: process.env.JWT_SECRET_KEY,
+      }),
+      refresh_token: await this.jwtService.signAsync(payload, {
+        expiresIn: '7d',
+        secret: process.env.JWT_REFRESH_TOKEN_KEY,
+      }),
+      expireIn: new Date().setTime(new Date().getTime() + EXPIRE_TIME),
     };
   }
 }

@@ -25,6 +25,8 @@ export class AuthController {
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
   async refresh(@Req() req) {
+    console.log('refresh');
+
     return await this.authService.refreshToken(req.user);
   }
 }
