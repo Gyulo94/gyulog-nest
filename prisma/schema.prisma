@@ -25,35 +25,32 @@ model User {
 }
 
 model Category {
-  id            String        @id @default(cuid())
-  name          String        @unique
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  subCategories SubCategory[]
-}
-
-model SubCategory {
-  id         String   @id @default(cuid())
-  name       String   @unique
-  category   Category @relation(fields: [categoryId], references: [id])
-  categoryId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  blogs      Blog[]
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  blogs     Blog[]
 }
 
 model Blog {
-  id            String      @id @default(cuid())
-  title         String
-  content       String
-  user          User        @relation(fields: [userId], references: [id])
-  userId        String
-  subCategory   SubCategory @relation(fields: [subCategoryId], references: [id])
-  subCategoryId String
-  isPublished   Boolean     @default(true)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  tags          Tag[]
+  id          Int      @id @default(autoincrement())
+  title       String
+  thumnail    String
+  content     String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tags        Tag[]
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  url       String
+  createdAt DateTime @default(now())
 }
 
 model Tag {
