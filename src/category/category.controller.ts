@@ -23,20 +23,9 @@ export class CategoryController {
     return this.categoryService.create(dto);
   }
 
-  @UseGuards(JwtGuard)
-  @Post('sub-category')
-  subCreate(@Body() dto: CreateCategoryDto) {
-    return this.categoryService.subCreate(dto);
-  }
-
   @Get()
   findAll() {
     return this.categoryService.findAll();
-  }
-
-  @Get('sub-category')
-  subFindAll() {
-    return this.categoryService.subFindAll();
   }
 
   @Get(':id')
@@ -54,11 +43,5 @@ export class CategoryController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.categoryService.remove(id);
-  }
-
-  @UseGuards(JwtGuard)
-  @Delete('sub-category/:id')
-  subRemove(@Param('id') id: string) {
-    return this.categoryService.subRemove(id);
   }
 }

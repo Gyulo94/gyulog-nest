@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -25,42 +21,15 @@ export class CategoryService {
     });
   }
 
-  async subCreate(dto: CreateCategoryDto) {
-    const parentCategory = await this.findOne(dto.categoryId);
-    if (!parentCategory) {
-      throw new NotFoundException('존재하지 않는 카테고리 입니다.');
-    }
-    return await this.prisma.subCategory.create({
-      data: {
-        name: dto.name,
-        categoryId: dto.categoryId,
-      },
-    });
-  }
-
   async findAll() {
     return await this.prisma.category.findMany();
-  }
-
-  async subFindAll() {
-    return await this.prisma.subCategory.findMany();
   }
 
   async findOne(id: string) {
     return await this.prisma.category.findUnique({
       where: { id },
-      include: {
-        subCategories: true,
-      },
     });
   }
-
-  async subFindOne(id: string) {
-    return await this.prisma.subCategory.findUnique({
-      where: { id },
-    });
-  }
-
   async update(id: string, dto: UpdateCategoryDto) {
     const category = await this.findOne(id);
     if (!category) {
@@ -80,16 +49,6 @@ export class CategoryService {
       throw new BadRequestException('존재하지 않는 카테고리 입니다.');
     }
     return await this.prisma.category.delete({
-      where: { id },
-    });
-  }
-
-  async subRemove(id: string) {
-    const category = await this.subFindOne(id);
-    if (!category) {
-      throw new BadRequestException('존재하지 않는 카테고리 입니다.');
-    }
-    return await this.prisma.subCategory.delete({
       where: { id },
     });
   }
