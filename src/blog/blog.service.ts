@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
+import { GetBlogDto } from './dto/get-blog.dto';
 import { UpdateBlogDto } from './dto/update-blog.dto';
 
 @Injectable()
@@ -12,11 +13,11 @@ export class BlogService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateBlogDto) {
-    const subCategory = await this.prisma.subCategory.findUnique({
-      where: { id: dto.subCategoryId },
+    const category = await this.prisma.category.findUnique({
+      where: { id: dto.categoryId },
     });
-    if (!subCategory) {
-      throw new NotFoundException('해당 하위 카테고리를 찾을 수 없습니다.');
+    if (!category) {
+      throw new NotFoundException('해당 카테고리를 찾을 수 없습니다.');
     }
 
     const tagArr = await Promise.all(
@@ -37,10 +38,11 @@ export class BlogService {
       const blog = await this.prisma.blog.create({
         data: {
           title: dto.title,
+          thumnail: dto.thumnail,
           content: dto.content,
           isPublished: dto.isPublished,
-          subCategory: {
-            connect: { id: subCategory.id },
+          category: {
+            connect: { id: category.id },
           },
           user: {
             connect: { id: dto.userId },
@@ -48,6 +50,11 @@ export class BlogService {
           tags: {
             connect: tagArr.map((tag) => ({ id: tag.id })),
           },
+        },
+        include: {
+          tags: true,
+          category: true,
+          user: true,
         },
       });
 
@@ -59,16 +66,77 @@ export class BlogService {
     }
   }
 
-  async findAll() {
-    return await this.prisma.blog.findMany({
-      include: { tags: true, subCategory: true },
-    });
+  async findAll(dto: GetBlogDto) {
+    const { page, take, title } = dto;
+    const skip = (page - 1) * take;
+
+    const where: any = {};
+    if (title) {
+      where.title = { contains: title };
+    }
+
+    // if (tag) {
+    //   where.tags = {
+    //     some: {
+    //       name: tag,
+    //     },
+    //   };
+    // }
+
+    const [blogs, totalCount] = await Promise.all([
+      this.prisma.blog.findMany({
+        where: where,
+        take: take,
+        skip: skip,
+        include: {
+          tags: true,
+          category: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.blog.count({ where: where }),
+    ]);
+
+    return { blogs, totalCount };
   }
 
-  async findOne(id: string) {
+  async findByCategory(dto: GetBlogDto, category: string) {
+    const { page, take, title } = dto;
+    const skip = (page - 1) * take;
+
+    const where: any = {};
+    if (title) {
+      where.title = { contains: title };
+    }
+
+    where.category = {
+      name: category,
+    };
+
+    const [blogs, totalCount] = await Promise.all([
+      this.prisma.blog.findMany({
+        where: where,
+        take: take,
+        skip: skip,
+        include: {
+          tags: true,
+          category: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.blog.count({ where: where }),
+    ]);
+
+    return { blogs, totalCount };
+  }
+
+  async findOne(id: number) {
     const blog = await this.prisma.blog.findUnique({
       where: { id },
-      include: { tags: true, subCategory: true },
+      include: {
+        tags: true,
+        category: true,
+      },
     });
     if (!blog) {
       throw new NotFoundException(`블로그를 찾을 수 없습니다. ID: ${id}`);
@@ -76,7 +144,7 @@ export class BlogService {
     return blog;
   }
 
-  async update(id: string, dto: UpdateBlogDto) {
+  async update(id: number, dto: UpdateBlogDto) {
     const blog = await this.prisma.blog.findUnique({
       where: { id },
     });
@@ -84,11 +152,11 @@ export class BlogService {
       throw new NotFoundException(`블로그를 찾을 수 없습니다. ID: ${id}`);
     }
 
-    const subCategory = await this.prisma.subCategory.findUnique({
-      where: { id: dto.subCategoryId },
+    const category = await this.prisma.category.findUnique({
+      where: { id: dto.categoryId },
     });
-    if (!subCategory) {
-      throw new NotFoundException('해당 서브 카테고리를 찾을 수 없습니다.');
+    if (!category) {
+      throw new NotFoundException('해당 카테고리를 찾을 수 없습니다.');
     }
 
     const tagArr = await Promise.all(
@@ -112,8 +180,8 @@ export class BlogService {
           title: dto.title,
           content: dto.content,
           isPublished: dto.isPublished,
-          subCategory: {
-            connect: { id: subCategory.id },
+          category: {
+            connect: { id: category.id },
           },
           tags: {
             set: tagArr.map((tag) => ({ id: tag.id })),
@@ -129,7 +197,7 @@ export class BlogService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     const blog = await this.prisma.blog.findUnique({
       where: { id },
     });
