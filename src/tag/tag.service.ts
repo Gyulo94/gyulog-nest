@@ -17,7 +17,14 @@ export class TagService {
   }
 
   async findAll() {
-    return await this.prisma.tag.findMany();
+    return await this.prisma.tag.findMany({
+      select: {
+        name: true,
+        _count: {
+          select: { blogs: true },
+        },
+      },
+    });
   }
 
   async findByTags(dto: PagePaginationDto, tag: string) {
