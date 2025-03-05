@@ -6,7 +6,9 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
+import { PagePaginationDto } from 'src/common/dto/page-pagination.dto';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import { TagService } from './tag.service';
@@ -23,6 +25,11 @@ export class TagController {
   @Get()
   findAll() {
     return this.tagService.findAll();
+  }
+
+  @Get(':tag')
+  findByCategory(@Query() dto: PagePaginationDto, @Param('tag') tag: string) {
+    return this.tagService.findByTags(dto, tag);
   }
 
   @Get(':id')

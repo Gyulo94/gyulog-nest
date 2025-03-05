@@ -78,14 +78,6 @@ export class BlogService {
       where.title = { contains: title };
     }
 
-    // if (tag) {
-    //   where.tags = {
-    //     some: {
-    //       name: tag,
-    //     },
-    //   };
-    // }
-
     const [blogs, totalCount] = await Promise.all([
       this.prisma.blog.findMany({
         where: where,
