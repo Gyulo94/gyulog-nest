@@ -6,9 +6,11 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guards/jwt_guard';
+import { PagePaginationDto } from 'src/common/dto/page-pagination.dto';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -26,6 +28,14 @@ export class CategoryController {
   @Get()
   findAll() {
     return this.categoryService.findAll();
+  }
+
+  @Get(':category')
+  findByCategory(
+    @Query() dto: PagePaginationDto,
+    @Param('category') category: string,
+  ) {
+    return this.categoryService.findByCategory(dto, category);
   }
 
   @Get(':id')
