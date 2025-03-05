@@ -8,8 +8,11 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtGuard } from 'src/auth/guards/jwt_guard';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -21,9 +24,15 @@ export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @UseGuards(JwtGuard)
+  @UseInterceptors(FileInterceptor('thumnail'))
   @Post()
-  create(@Body() dto: CreateBlogDto) {
-    return this.blogService.create(dto);
+  create(
+    @Body() dto: CreateBlogDto,
+    @UploadedFile() thumnail: Express.Multer.File,
+  ) {
+    console.log('thumnail', thumnail);
+
+    return this.blogService.create(dto, thumnail.filename);
   }
 
   @Get()
@@ -31,16 +40,10 @@ export class BlogController {
     return this.blogService.findAll(dto);
   }
 
-  @Get(':category')
-  findByCategory(
-    @Query() dto: GetBlogDto,
-    @Param('category') category: string,
-  ) {
-    return this.blogService.findByCategory(dto, category);
-  }
-
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
+    console.log('id', id);
+
     return this.blogService.findOne(id);
   }
 

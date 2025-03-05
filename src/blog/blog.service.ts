@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { join } from 'path';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
 import { GetBlogDto } from './dto/get-blog.dto';
@@ -12,7 +13,7 @@ import { UpdateBlogDto } from './dto/update-blog.dto';
 export class BlogService {
   constructor(private prisma: PrismaService) {}
 
-  async create(dto: CreateBlogDto) {
+  async create(dto: CreateBlogDto, thumnailFilename: string) {
     const category = await this.prisma.category.findUnique({
       where: { id: dto.categoryId },
     });
@@ -34,11 +35,13 @@ export class BlogService {
       }),
     );
 
+    const thumnailFolder = join('uploads', 'thumnails');
+
     try {
       const blog = await this.prisma.blog.create({
         data: {
           title: dto.title,
-          thumnail: dto.thumnail,
+          thumnail: join(thumnailFolder, thumnailFilename),
           content: dto.content,
           isPublished: dto.isPublished,
           category: {
@@ -82,36 +85,6 @@ export class BlogService {
     //     },
     //   };
     // }
-
-    const [blogs, totalCount] = await Promise.all([
-      this.prisma.blog.findMany({
-        where: where,
-        take: take,
-        skip: skip,
-        include: {
-          tags: true,
-          category: true,
-        },
-        orderBy: { createdAt: 'desc' },
-      }),
-      this.prisma.blog.count({ where: where }),
-    ]);
-
-    return { blogs, totalCount };
-  }
-
-  async findByCategory(dto: GetBlogDto, category: string) {
-    const { page, take, title } = dto;
-    const skip = (page - 1) * take;
-
-    const where: any = {};
-    if (title) {
-      where.title = { contains: title };
-    }
-
-    where.category = {
-      name: category,
-    };
 
     const [blogs, totalCount] = await Promise.all([
       this.prisma.blog.findMany({

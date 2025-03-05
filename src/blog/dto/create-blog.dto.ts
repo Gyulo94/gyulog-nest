@@ -1,4 +1,11 @@
-import { IsArray, IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateBlogDto {
   @IsString()
@@ -6,7 +13,7 @@ export class CreateBlogDto {
   title: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   thumnail: string;
 
   @IsString()
@@ -26,7 +33,7 @@ export class CreateBlogDto {
   isPublished: boolean = true;
 
   @IsArray()
-  @IsString({ each: true })
   @IsNotEmpty()
+  @Type(() => String)
   tags: string[];
 }
