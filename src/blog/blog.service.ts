@@ -70,17 +70,11 @@ export class BlogService {
   }
 
   async findAll(dto: GetBlogDto) {
-    const { page, take, title } = dto;
+    const { page, take } = dto;
     const skip = (page - 1) * take;
-
-    const where: any = {};
-    if (title) {
-      where.title = { contains: title };
-    }
 
     const [blogs, totalCount] = await Promise.all([
       this.prisma.blog.findMany({
-        where: where,
         take: take,
         skip: skip,
         include: {
@@ -89,10 +83,36 @@ export class BlogService {
         },
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.blog.count({ where: where }),
+      this.prisma.blog.count(),
     ]);
 
     return { blogs, totalCount };
+  }
+
+  async findByBot(title: string) {
+    console.log('title', title);
+
+    const splitTitle = title.split(' ');
+    const where: any = {};
+    if (Array.isArray(splitTitle)) {
+      where.OR = splitTitle.map((t) => ({
+        title: { contains: t, mode: 'insensitive' },
+      }));
+    } else if (title) {
+      where.title = { contains: title, mode: 'insensitive' };
+    }
+
+    const blog = await this.prisma.blog.findMany({
+      where: where,
+      include: {
+        tags: true,
+        category: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    console.log('blog', blog);
+
+    return blog;
   }
 
   async findOne(id: number) {

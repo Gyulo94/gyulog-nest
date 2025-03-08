@@ -30,8 +30,6 @@ export class BlogController {
     @Body() dto: CreateBlogDto,
     @UploadedFile() thumnail: Express.Multer.File,
   ) {
-    console.log('thumnail', thumnail);
-
     return this.blogService.create(dto, thumnail.filename);
   }
 
@@ -40,10 +38,15 @@ export class BlogController {
     return this.blogService.findAll(dto);
   }
 
+  @Get('bot')
+  findByBot(@Query('title') title: string) {
+    console.log('controller title', title);
+
+    return this.blogService.findByBot(title);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    console.log('id', id);
-
     return this.blogService.findOne(id);
   }
 
