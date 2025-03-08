@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Blog" ADD COLUMN     "viewCnt" INTEGER NOT NULL DEFAULT 0;
