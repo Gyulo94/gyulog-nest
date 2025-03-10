@@ -8,11 +8,14 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  Res,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Request, Response } from 'express';
 import { JwtGuard } from 'src/auth/guards/jwt_guard';
 import { BlogService } from './blog.service';
 import { CreateBlogDto } from './dto/create-blog.dto';
@@ -45,15 +48,40 @@ export class BlogController {
     return this.blogService.findByBot(title);
   }
 
+  @Post(':id/view')
+  async increaseViewCount(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const cookieName = `viewed_${id}`;
+    const viewed = req.cookies[cookieName];
+
+    if (!viewed) {
+      await this.blogService.increaseViewCount(Number(id));
+      res.cookie(cookieName, 'true', { maxAge: 24 * 60 * 60 * 1000 }); // 24시간 유효기간
+    }
+
+    return res.status(200).json({ message: 'View count increased' });
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.blogService.findOne(id);
   }
 
   @UseGuards(JwtGuard)
+  @UseInterceptors(FileInterceptor('thumnail'))
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateBlogDto) {
-    return this.blogService.update(id, dto);
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateBlogDto,
+    @UploadedFile() thumnail?: Express.Multer.File,
+  ) {
+    console.log('controller update', dto);
+    console.log('controller update', id);
+
+    return this.blogService.update(id, dto, thumnail?.filename);
   }
 
   @UseGuards(JwtGuard)

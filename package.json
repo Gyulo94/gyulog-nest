@@ -32,6 +32,7 @@
     "chroma-js": "3.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "cookie-parser": "^1.4.7",
     "gyulog-backend": "file:",
     "prisma": "^6.3.1",
     "reflect-metadata": "^0.2.0",

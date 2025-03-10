@@ -61,7 +61,11 @@ export class BlogService {
         },
       });
 
-      return blog;
+      return {
+        id: blog.id,
+        status: 'success',
+        message: '블로그 글이 성공적으로 작성되었습니다.',
+      };
     } catch (error) {
       throw new InternalServerErrorException(
         `블로그 생성 중 오류 발생: ${error.message}`,
@@ -90,8 +94,6 @@ export class BlogService {
   }
 
   async findByBot(title: string) {
-    console.log('title', title);
-
     const splitTitle = title.split(' ');
     const where: any = {};
     if (Array.isArray(splitTitle)) {
@@ -110,7 +112,6 @@ export class BlogService {
       },
       orderBy: { createdAt: 'desc' },
     });
-    console.log('blog', blog);
 
     return blog;
   }
@@ -129,7 +130,7 @@ export class BlogService {
     return blog;
   }
 
-  async update(id: number, dto: UpdateBlogDto) {
+  async update(id: number, dto: UpdateBlogDto, thumnailFilename: string) {
     const blog = await this.prisma.blog.findUnique({
       where: { id },
     });
@@ -157,14 +158,15 @@ export class BlogService {
         return tag;
       }),
     );
-
+    const thumnailFolder = join('uploads', 'thumnails');
     try {
-      const updatedBlog = await this.prisma.blog.update({
+      await this.prisma.blog.update({
         where: { id },
         data: {
           title: dto.title,
           content: dto.content,
           isPublished: dto.isPublished,
+          thumnail: thumnailFilename && join(thumnailFolder, thumnailFilename),
           category: {
             connect: { id: category.id },
           },
@@ -174,7 +176,10 @@ export class BlogService {
         },
       });
 
-      return updatedBlog;
+      return {
+        status: 'success',
+        message: '블로그 글이 성공적으로 수정되었습니다.',
+      };
     } catch (error) {
       throw new InternalServerErrorException(
         `블로그 업데이트 중 오류 발생: ${error.message}`,
@@ -190,6 +195,18 @@ export class BlogService {
       throw new NotFoundException(`블로그를 찾을 수 없습니다. ID: ${id}`);
     }
 
-    return await this.prisma.blog.delete({ where: { id } });
+    await this.prisma.blog.delete({ where: { id } });
+
+    return {
+      status: 'success',
+      message: '블로그 글이 성공적으로 삭제되었습니다.',
+    };
+  }
+
+  async increaseViewCount(id: number) {
+    await this.prisma.blog.update({
+      where: { id },
+      data: { viewCnt: { increment: 1 } },
+    });
   }
 }
