@@ -7,7 +7,7 @@
   - The primary key for the `_BlogToTag` table will be changed. If it partially fails, the table could be left without primary key constraint.
   - You are about to drop the `SubCategory` table. If the table is not empty, all the data it contains will be lost.
   - Added the required column `categoryId` to the `Blog` table without a default value. This is not possible if the table is not empty.
-  - Added the required column `thumnail` to the `Blog` table without a default value. This is not possible if the table is not empty.
+  - Added the required column `thumbnail` to the `Blog` table without a default value. This is not possible if the table is not empty.
   - Changed the type of `A` on the `_BlogToTag` table. No cast exists, the column would be dropped and recreated, which cannot be done if there is data, since the column is required.
 
 */
@@ -24,7 +24,7 @@ ALTER TABLE "_BlogToTag" DROP CONSTRAINT "_BlogToTag_A_fkey";
 ALTER TABLE "Blog" DROP CONSTRAINT "Blog_pkey",
 DROP COLUMN "subCategoryId",
 ADD COLUMN     "categoryId" TEXT NOT NULL,
-ADD COLUMN     "thumnail" TEXT NOT NULL,
+ADD COLUMN     "thumbnail" TEXT NOT NULL,
 DROP COLUMN "id",
 ADD COLUMN     "id" SERIAL NOT NULL,
 ADD CONSTRAINT "Blog_pkey" PRIMARY KEY ("id");

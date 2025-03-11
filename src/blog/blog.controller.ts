@@ -27,13 +27,13 @@ export class BlogController {
   constructor(private readonly blogService: BlogService) {}
 
   @UseGuards(JwtGuard)
-  @UseInterceptors(FileInterceptor('thumnail'))
+  @UseInterceptors(FileInterceptor('thumbnail'))
   @Post()
   create(
     @Body() dto: CreateBlogDto,
-    @UploadedFile() thumnail: Express.Multer.File,
+    @UploadedFile() thumbnail: Express.Multer.File,
   ) {
-    return this.blogService.create(dto, thumnail.filename);
+    return this.blogService.create(dto, thumbnail.filename);
   }
 
   @Get()
@@ -71,14 +71,14 @@ export class BlogController {
   }
 
   @UseGuards(JwtGuard)
-  @UseInterceptors(FileInterceptor('thumnail'))
+  @UseInterceptors(FileInterceptor('thumbnail'))
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateBlogDto,
-    @UploadedFile() thumnail?: Express.Multer.File,
+    @UploadedFile() thumbnail?: Express.Multer.File,
   ) {
-    return this.blogService.update(id, dto, thumnail?.filename);
+    return this.blogService.update(id, dto, thumbnail?.filename);
   }
 
   @UseGuards(JwtGuard)

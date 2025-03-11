@@ -13,7 +13,7 @@ import { UpdateBlogDto } from './dto/update-blog.dto';
 export class BlogService {
   constructor(private prisma: PrismaService) {}
 
-  async create(dto: CreateBlogDto, thumnailFilename: string) {
+  async create(dto: CreateBlogDto, thumbnailFilename: string) {
     const category = await this.prisma.category.findUnique({
       where: { id: dto.categoryId },
     });
@@ -35,13 +35,13 @@ export class BlogService {
       }),
     );
 
-    const thumnailFolder = join('uploads', 'thumnails');
+    const thumbnailFolder = join('uploads', 'thumbnails');
 
     try {
       const blog = await this.prisma.blog.create({
         data: {
           title: dto.title,
-          thumnail: join(thumnailFolder, thumnailFilename),
+          thumbnail: join(thumbnailFolder, thumbnailFilename),
           content: dto.content,
           isPublished: dto.isPublished,
           category: {
@@ -130,7 +130,7 @@ export class BlogService {
     return blog;
   }
 
-  async update(id: number, dto: UpdateBlogDto, thumnailFilename: string) {
+  async update(id: number, dto: UpdateBlogDto, thumbnailFilename: string) {
     const blog = await this.prisma.blog.findUnique({
       where: { id },
     });
@@ -158,7 +158,7 @@ export class BlogService {
         return tag;
       }),
     );
-    const thumnailFolder = join('uploads', 'thumnails');
+    const thumbnailFolder = join('uploads', 'thumbnails');
     try {
       await this.prisma.blog.update({
         where: { id },
@@ -166,7 +166,8 @@ export class BlogService {
           title: dto.title,
           content: dto.content,
           isPublished: dto.isPublished,
-          thumnail: thumnailFilename && join(thumnailFolder, thumnailFilename),
+          thumbnail:
+            thumbnailFilename && join(thumbnailFolder, thumbnailFilename),
           category: {
             connect: { id: category.id },
           },

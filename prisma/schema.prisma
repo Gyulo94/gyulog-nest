@@ -36,7 +36,7 @@ model Category {
 model Blog {
   id          Int       @id @default(autoincrement())
   title       String
-  thumnail    String
+  thumbnail   String
   content     String
   user        User      @relation(fields: [userId], references: [id])
   userId      String

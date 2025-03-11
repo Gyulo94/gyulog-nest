@@ -35,8 +35,6 @@ export class UserController {
     @Param('email') email: string,
     @Body('name') name: string,
   ) {
-    console.log('name', name);
-
     return this.userService.update(email, name);
   }
 
@@ -47,8 +45,6 @@ export class UserController {
     @Param('email') email: string,
     @UploadedFile() profileImage: Express.Multer.File,
   ) {
-    console.log('profileImage', profileImage);
-
     return this.userService.updateImage(email, profileImage.filename);
   }
 }

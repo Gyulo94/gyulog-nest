@@ -14,7 +14,7 @@ export class CreateBlogDto {
 
   @IsString()
   @IsOptional()
-  thumnail: string;
+  thumbnail: string;
 
   @IsString()
   @IsNotEmpty()

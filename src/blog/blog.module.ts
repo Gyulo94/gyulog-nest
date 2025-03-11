@@ -11,7 +11,7 @@ import { BlogService } from './blog.service';
   imports: [
     MulterModule.register({
       storage: diskStorage({
-        destination: join(process.cwd(), 'uploads', 'thumnails'),
+        destination: join(process.cwd(), 'uploads', 'thumbnails'),
         filename: (req, file, cb) => {
           const filename = `${file.fieldname}-${Date.now()}${extname(
             file.originalname,
