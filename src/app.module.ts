@@ -8,6 +8,7 @@ import { CategoryModule } from './category/category.module';
 import { TagModule } from './tag/tag.module';
 import { UserModule } from './user/user.module';
 import { FileModule } from './file/file.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FileModule } from './file/file.module';
       serveRoot: '/uploads/',
     }),
     FileModule,
+    CommentModule,
   ],
 })
 export class AppModule {}

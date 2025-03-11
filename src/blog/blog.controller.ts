@@ -43,7 +43,7 @@ export class BlogController {
 
   @Get('bot')
   findByBot(@Query('title') title: string) {
-    console.log('controller title', title);
+    // console.log('controller title', title);
 
     return this.blogService.findByBot(title);
   }
@@ -78,9 +78,6 @@ export class BlogController {
     @Body() dto: UpdateBlogDto,
     @UploadedFile() thumnail?: Express.Multer.File,
   ) {
-    console.log('controller update', dto);
-    console.log('controller update', id);
-
     return this.blogService.update(id, dto, thumnail?.filename);
   }
 

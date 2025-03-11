@@ -51,17 +51,20 @@ model Blog {
 }
 
 model Comment {
-  id        String    @id @default(cuid())
-  content   String
-  author    String
-  createdAt DateTime  @default(now())
-  blog      Blog      @relation(fields: [blogId], references: [id])
-  blogId    Int
-  user      User?     @relation(fields: [userId], references: [id])
-  userId    String?
-  parentId  String?
-  parent    Comment?  @relation("CommentToReplies", fields: [parentId], references: [id])
-  replies   Comment[] @relation("CommentToReplies")
+  id           String    @id @default(cuid())
+  content      String
+  author       String
+  password     String?
+  profileImage String?
+  createdAt    DateTime  @default(now())
+  blog         Blog      @relation(fields: [blogId], references: [id])
+  blogId       Int
+  user         User?     @relation(fields: [userId], references: [id])
+  userId       String?
+  isDeleted    Boolean   @default(false)
+  parentId     String?
+  parent       Comment?  @relation("CommentToReplies", fields: [parentId], references: [id])
+  replies      Comment[] @relation("CommentToReplies")
 }
 
 model Image {
