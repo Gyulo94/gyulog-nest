@@ -18,6 +18,6 @@ async function bootstrap() {
     }),
   );
   app.useStaticAssets(join(__dirname, '..', 'uploads'));
-  await app.listen(8000);
+  await app.listen(process.env.PORT);
 }
 bootstrap();
